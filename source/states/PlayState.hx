@@ -1317,24 +1317,6 @@ class PlayState extends MusicBeatState
 		});
 	}
 
-	/*
-	public function doJudgeBop():Void {
-		if (judgementCounter == null || !ClientPrefs.data.judgeZoom) 
-			return;
-	
-		if(judgementCounterTween != null)
-			judgementCounterTween.cancel();
-
-		judgementCounter.scale.x = 1.075;
-		judgementCounter.scale.y = 1.075;
-		judgementCounterTween = FlxTween.tween(judgementCounter.scale, {x: 1, y: 1}, 0.2, {
-			onComplete: function(twn:FlxTween) {
-				judgementCounterTween = null;
-			}
-		});
-	}
-	*/
-
 	public function setSongTime(time:Float)
 	{
 		FlxG.sound.music.pause();
@@ -2045,8 +2027,8 @@ class PlayState extends MusicBeatState
 		var bads:Int = ratingsData[2].hits;
 		var shits:Int = ratingsData[3].hits;
 
-		tempJudge = Language.getPhrase('judgement_counter', 'Sicks: {1}\nGoods: {2}\nBads: {3}\nShits: {4}\nCombo: {5}', 
-			[sicks, goods, bads, shits, combo]);
+		tempJudge = Language.getPhrase('judgement_counter', 'Hits: {1}\nSicks: {2}\nGoods: {3}\nBads: {4}\nShits: {5}\nCombo: {6}', 
+			[noteHits, sicks, goods, bads, shits, combo]);
 		judgementCounter.text = tempJudge;
 	}
 

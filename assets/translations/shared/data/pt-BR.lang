@@ -10,6 +10,7 @@ avg_stat: "Média: {1}"
 acc_stat: "Precisão: {1}"
 rate_stat: "Avaliação: {1}"
 botplay: "Automático"
+judgement_counter: "Greves: {1}\nSicks: {2}\nGoods: {3}\nBads: {4}\nShits: {5}\Combinação: {6}"
 
 rating_you_suck: "Desinstalar"
 rating_shit: "F"
