@@ -25,6 +25,13 @@ import states.TitleState;
 	public var cacheOnGPU:Bool = #if !switch false #else true #end; // GPU Caching made by Raltyro
 	public var framerate:Int = 60;
 	public var camZooms:Bool = true;
+	public var npsCounter:Bool = false;
+	public var displayDeaths:Bool = true;
+	public var healthCounter:Bool = false;
+	public var msCounter:Bool = false;
+	public var ratingCounter:Bool = true;
+	public var showMsText:Bool = true;
+	public var judgementCounter:Bool = true;
 	public var hideHud:Bool = false;
 	public var noteOffset:Int = 0;
 	public var arrowRGB:Array<Array<FlxColor>> = [

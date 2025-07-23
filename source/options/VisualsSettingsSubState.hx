@@ -98,12 +98,48 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			STRING,
 			['Default', 'Gradient', 'Disabled']);
 		addOption(option);
-		
-		var option:Option = new Option('Advanced Score Bar',
-			"If unchecked, adds additional info to the Score bar.",
-			'advScore',
+
+		var option:Option = new Option('Judgement Counter',
+			"If checked, adds a rating and combo counter on the left side of the HUD.",
+			'judgementCounter',
 			BOOL);
-		addOption(option);	
+		addOption(option);
+
+		var option:Option = new Option('NPS Counter',
+			"If checked, adds a Notes Per Second counter to the score bar.",
+			'npsCounter',
+			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Health Percentage',
+			"If checked, adds the current health percentage to the score bar.",
+			'healthCounter',
+			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Average Millisecond Counter',
+			"If checked, adds your average offset in milliseconds to the score bar.",
+			'msCounter',
+			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Current Rating',
+			"If checked, adds the current rating and overall combo score to the score bar.",
+			'ratingCounter',
+			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Death Counter',
+			"Using the \"Instakill on Miss\" modifier, if checked, replaces the miss counter with a death counter on the score bar.",
+			'displayDeaths',
+			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Display MS Offset on Note Hits',
+			'If checked, an offset in milliseconds will appear near notes.',
+			'showMsText',
+			BOOL);
+		addOption(option);
 
 		var option:Option = new Option('Flashing Lights',
 			"Uncheck this if you're sensitive to flashing lights!",

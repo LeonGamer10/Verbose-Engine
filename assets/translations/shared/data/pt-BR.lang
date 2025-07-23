@@ -1,8 +1,14 @@
 Português (Brasil)
 
 // Gameplay
-score_text: "Pontos: {1} | Erros: {2} | Precisão {3} | Avaliação: {4}"
-score_text_instakill: "Pontos: {1} | Precisão {2} | Avaliação: {3}"
+nps_stat: "NPS: {1} ({2})"
+score_stat: "Pontos: {1}"
+miss_stat: "Erros: {1}"
+miss_stat: "Mortes: {1}"
+health_stat: "Saúde: {1}"
+avg_stat: "Média: {1}"
+acc_stat: "Precisão: {1}"
+rate_stat: "Avaliação: {1}"
 botplay: "Automático"
 
 rating_you_suck: "Desinstalar"
