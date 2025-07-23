@@ -1,20 +1,20 @@
 Português (Brasil)
 
 // Gameplay
-score_text: "Pontos: {1} | Erros: {2} | Avaliação: {3}"
-score_text_instakill: "Pontos: {1} | Avaliação: {2}"
+score_text: "Pontos: {1} | Erros: {2} | Precisão {3} | Avaliação: {4}"
+score_text_instakill: "Pontos: {1} | Precisão {2} | Avaliação: {3}"
 botplay: "Automático"
 
-rating_you_suck: "Que Horrível!"
-rating_shit: "Merda"
-rating_bad: "Ruim"
-rating_bruh: "Mal"
-rating_meh: "Meh"
+rating_you_suck: "Desinstalar"
+rating_shit: "F"
+rating_bad: "D-"
+rating_bruh: "D"
+rating_meh: "C"
 rating_nice: "Decente"
-rating_good: "Bom"
-rating_great: "Ótimo"
-rating_sick: "Manda Ver!"
-rating_perfect: "Perfeito!!"
+rating_good: "B"
+rating_great: "A"
+rating_sick: "S"
+rating_perfect: "X"
 
 // Dialogues
 dialogue_skip: "Aperte BACK para Pular"

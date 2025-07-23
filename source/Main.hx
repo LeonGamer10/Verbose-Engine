@@ -163,6 +163,8 @@ class Main extends Sprite
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		if(fpsVar != null) {
 			fpsVar.visible = ClientPrefs.data.showFPS;
+			fpsVar.showMem = ClientPrefs.data.showMem;
+			fpsVar.showMemPeak = ClientPrefs.data.showMemPeak;
 		}
 		#end
 
@@ -222,7 +224,7 @@ class Main extends Sprite
 		dateNow = dateNow.replace(" ", "_");
 		dateNow = dateNow.replace(":", "'");
 
-		path = "./crash/" + "PsychEngine_" + dateNow + ".txt";
+		path = "./crash/" + "VERBOSE_" + dateNow + ".txt";
 
 		for (stackItem in callStack)
 		{
@@ -239,7 +241,7 @@ class Main extends Sprite
 		// remove if you're modding and want the crash log message to contain the link
 		// please remember to actually modify the link for the github page to report the issues to.
 		#if officialBuild
-		errMsg += "\nPlease report this error to the GitHub page: https://github.com/ShadowMario/FNF-PsychEngine";
+		errMsg += "\nPlease report this error to the GitHub page: https://github.com/LeonGamer10/Verbose-Engine";
 		#end
 		errMsg += "\n\n> Crash Handler written by: sqirra-rng";
 

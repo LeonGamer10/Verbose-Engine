@@ -89,8 +89,21 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			"What should the Time Bar display?",
 			'timeBarType',
 			STRING,
-			['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']);
+			['Time Elapsed', 'Time Left', 'Song Name', 'Disable Time', 'Disable All']);
 		addOption(option);
+		
+		var option:Option = new Option('Health Bar Overlay:',
+			"Select your preferred health bar overlay.",
+			'healthOverlay',
+			STRING,
+			['Default', 'Gradient', 'Disabled']);
+		addOption(option);
+		
+		var option:Option = new Option('Advanced Score Bar',
+			"If unchecked, adds additional info to the Score bar.",
+			'advScore',
+			BOOL);
+		addOption(option);	
 
 		var option:Option = new Option('Flashing Lights',
 			"Uncheck this if you're sensitive to flashing lights!",

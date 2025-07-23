@@ -12,6 +12,8 @@ import states.TitleState;
 	public var middleScroll:Bool = false;
 	public var opponentStrums:Bool = true;
 	public var showFPS:Bool = true;
+	public var showMem:Bool = true;
+	public var showMemPeak:Bool = true;
 	public var flashing:Bool = true;
 	public var autoPause:Bool = true;
 	public var antialiasing:Bool = true;
@@ -37,8 +39,10 @@ import states.TitleState;
 		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]];
 
 	public var ghostTapping:Bool = true;
-	public var timeBarType:String = 'Time Left';
+	public var timeBarType:String = 'Time Elapsed';
+	public var healthOverlay:String = 'Default';
 	public var scoreZoom:Bool = true;
+	public var advScore:Bool = false;
 	public var noReset:Bool = false;
 	public var healthBarAlpha:Float = 1;
 	public var hitsoundVolume:Float = 0;
@@ -178,7 +182,11 @@ class ClientPrefs {
 				Reflect.setField(data, key, Reflect.field(FlxG.save.data, key));
 		
 		if(Main.fpsVar != null)
+		{
 			Main.fpsVar.visible = data.showFPS;
+			Main.fpsVar.showMem = data.showMem;
+			Main.fpsVar.showMemPeak = data.showMemPeak;
+		}
 
 		#if (!html5 && !switch)
 		FlxG.autoPause = ClientPrefs.data.autoPause;

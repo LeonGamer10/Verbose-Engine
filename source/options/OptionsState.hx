@@ -19,6 +19,9 @@ class OptionsState extends MusicBeatState
 	public static var menuBG:FlxSprite;
 	public static var onPlayState:Bool = false;
 
+	public var optionsBG:FlxSound;
+	public var drumsBG:FlxSound;
+
 	function openSelectedSubstate(label:String) {
 		switch(label)
 		{
@@ -47,6 +50,8 @@ class OptionsState extends MusicBeatState
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Options Menu", null);
 		#end
+
+		
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
@@ -106,7 +111,10 @@ class OptionsState extends MusicBeatState
 			}
 			else MusicBeatState.switchState(new MainMenuState());
 		}
-		else if (controls.ACCEPT) openSelectedSubstate(options[curSelected]);
+		else if (controls.ACCEPT) {
+			openSelectedSubstate(options[curSelected]);
+			FlxG.sound.music.fadeIn(1, 1);
+		}
 	}
 	
 	function changeSelection(change:Int = 0)
