@@ -5,6 +5,7 @@ import backend.StageData;
 import backend.WeekData;
 import backend.Song;
 import backend.Rating;
+import backend.sounds.Hitsounds;
 
 import flixel.FlxBasic;
 import flixel.FlxObject;
@@ -77,17 +78,36 @@ class PlayState extends MusicBeatState
 	public static var STRUM_X_MIDDLESCROLL = -278;
 
 	public static var ratingStuff:Array<Dynamic> = [
-		['Uninstall', 0.2], //From 0% to 19%
-		['F', 0.4], //From 20% to 39%
-		['D-', 0.5], //From 40% to 49%
-		['D', 0.6], //From 50% to 59%
-		['C', 0.69], //From 60% to 68%
+		['*Uninstall*', 0.2], //From 0% to 19%
+		['*F*', 0.4], //From 20% to 39%
+		['@D-@', 0.5], //From 40% to 49%
+		['@D@', 0.6], //From 50% to 59%
+		['#C#', 0.69], //From 60% to 68%
 		['Nice', 0.7], //69%
-		['B', 0.8], //From 70% to 79%
-		['A', 0.9], //From 80% to 89%
-		['S', 1], //From 90% to 99%
-		['X', 1] //The value on this one isn't used actually, since Perfect is always "1"
+		['$B$', 0.8], //From 70% to 79%
+		['^A^', 0.9], //From 80% to 89%
+		['&S&', 1], //From 90% to 99%
+		['_X_', 1] //The value on this one isn't used actually, since Perfect is always "1"
 	];
+
+	public static var healthStuff:Array<Dynamic> = [
+		['=', 0],
+		['!', 0.4],
+		['@', 0.8],
+		['#', 1.2],
+		['$', 1.6],
+		['^', 2],
+		['&', 2]
+	];
+
+	var redFormat:FlxTextFormat = new FlxTextFormat(FlxColor.RED);
+	var orangeFormat:FlxTextFormat = new FlxTextFormat(FlxColor.ORANGE);
+	var yellowFormat:FlxTextFormat = new FlxTextFormat(FlxColor.YELLOW);
+	var greenFormat:FlxTextFormat = new FlxTextFormat(FlxColor.GREEN);
+	var limeFormat:FlxTextFormat = new FlxTextFormat(FlxColor.LIME);
+	var cyanFormat:FlxTextFormat = new FlxTextFormat(FlxColor.CYAN);
+	var magentaFormat:FlxTextFormat = new FlxTextFormat(FlxColor.MAGENTA);
+	var blackFormat:FlxTextFormat = new FlxTextFormat(FlxColor.BLACK);
 
 	//event variables
 	private var isCameraOnForcedPos:Bool = false;
@@ -174,6 +194,9 @@ class PlayState extends MusicBeatState
 
 	public var gfSpeed:Int = 1;
 	public var health(default, set):Float = 1;
+	public var healthDrained:Float = 1;
+
+	private var healthLerp:Float = 1;
 
 	public var totalHealth:Float = 50;
 	public var totalHealth2:Float = 50;
@@ -185,6 +208,7 @@ class PlayState extends MusicBeatState
 	public var healthOverlay:AttachedSprite;
 	public var healthOverlay2:AttachedSprite;
 	public var timeBar:Bar;
+
 	var songPercent:Float = 0;
 
 	public var ratingsData:Array<Rating> = Rating.loadDefault();
@@ -195,11 +219,14 @@ class PlayState extends MusicBeatState
 	private var updateTime:Bool = true;
 	public static var changedDifficulty:Bool = false;
 	public static var chartingMode:Bool = false;
+	public static var invalidateScore:Bool = false;
 
 	//Gameplay settings
 	public var healthGain:Float = 1;
 	public var healthLoss:Float = 1;
+	public var healthDrain:Float = 1;
 
+	public var opponentCanKill:Bool = false;
 	public var guitarHeroSustains:Bool = false;
 	public var instakillOnMiss:Bool = false;
 	public var cpuControlled:Bool = false;
@@ -237,6 +264,8 @@ class PlayState extends MusicBeatState
 	var notesPerSecond:Int = 0;
 	var npsArray:Array<Date> = [];
 	var maxNps:Int = 0;
+
+	var healthStyle:String = '';
 
 	public static var campaignScore:Int = 0;
 	public static var campaignMisses:Int = 0;
@@ -322,6 +351,8 @@ class PlayState extends MusicBeatState
 		// Gameplay settings
 		healthGain = ClientPrefs.getGameplaySetting('healthgain');
 		healthLoss = ClientPrefs.getGameplaySetting('healthloss');
+		healthDrain = ClientPrefs.getGameplaySetting('healthdrain');
+		opponentCanKill = ClientPrefs.getGameplaySetting('opponentcankill');
 		instakillOnMiss = ClientPrefs.getGameplaySetting('instakill');
 		practiceMode = ClientPrefs.getGameplaySetting('practice');
 		cpuControlled = ClientPrefs.getGameplaySetting('botplay');
@@ -560,7 +591,11 @@ class PlayState extends MusicBeatState
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 		moveCameraSection();
 
-		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.9 : 0.11), 'healthBar', function() return health, 0, 2);
+		healthBar = new Bar(0, FlxG.height * (!ClientPrefs.data.downScroll ? 0.9 : 0.11), 'healthBar', function() {
+			healthLerp = FlxMath.lerp(healthLerp, health, 0.15);
+			return healthLerp;
+		}, 0, 2);
+
 		healthBar.screenCenter(X);
 		healthBar.leftToRight = false;
 		healthBar.scrollFactor.set();
@@ -703,7 +738,7 @@ class PlayState extends MusicBeatState
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 
 		//PRECACHING THINGS THAT GET USED FREQUENTLY TO AVOID LAGSPIKES
-		if(ClientPrefs.data.hitsoundVolume > 0) Paths.sound('hitsound');
+		if(ClientPrefs.data.hitsoundVolume > 0) Hitsounds.loadSound();
 		if(!ClientPrefs.data.ghostTapping) for (i in 1...4) Paths.sound('missnote$i');
 		Paths.image('alphabet');
 
@@ -1014,6 +1049,27 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	public function changedModifiers() 
+	{
+		healthGain = ClientPrefs.getGameplaySetting('healthgain');
+		healthLoss = ClientPrefs.getGameplaySetting('healthloss');
+		healthDrain = ClientPrefs.getGameplaySetting('healthdrain');
+		opponentCanKill = ClientPrefs.getGameplaySetting('opponentcankill');
+		instakillOnMiss = ClientPrefs.getGameplaySetting('instakill');
+		practiceMode = ClientPrefs.getGameplaySetting('practice');
+		cpuControlled = ClientPrefs.getGameplaySetting('botplay');
+		playbackRate = ClientPrefs.getGameplaySetting('songspeed', 1);
+		songSpeedType = ClientPrefs.getGameplaySetting('scrolltype','multiplicative');
+
+		switch(songSpeedType)
+		{
+			case "multiplicative":
+				songSpeed = SONG.speed * ClientPrefs.getGameplaySetting('scrollspeed', 1);
+			case "constant":
+				songSpeed = ClientPrefs.getGameplaySetting('scrollspeed', 1);
+		}
+	}
+
 	var startTimer:FlxTimer;
 	var finishTimer:FlxTimer = null;
 
@@ -1247,18 +1303,25 @@ class PlayState extends MusicBeatState
 
 	public dynamic function updateScoreText()
 	{
-		var str:String = Language.getPhrase('rating_$ratingName', ratingName);
+		if (health <= 0) healthStyle = '=';
+		if (health > 0) healthStyle = '*';
+		if (health >= 0.4) healthStyle = '@';
+		if (health >= 0.8) healthStyle = '#';
+		if (health >= 1.2) healthStyle = '$';
+		if (health >= 1.6) healthStyle = '^';
+		if (health >= 2) healthStyle = '&'; // This can be redone using the rating letters system
+
+		var songRating:String = Language.getPhrase('rating_$ratingName', ratingName);
 		var songAccuracy:String = '100%';
 
 		if(totalPlayed != 0)
 		{
 			var percent:Float = CoolUtil.floorDecimal(ratingPercent * 100, 2);
-			str += ' - ' + Language.getPhrase(ratingFC);
-			songAccuracy = '${percent}%';
+			songAccuracy = '${percent}% ' + Language.getPhrase(ratingFC);
 		}
 
-		if (ratingName == "N/A") songHealth = FlxMath.roundDecimal(totalHealth, 0) + '%';
-			else songHealth = FlxMath.roundDecimal(totalHealth, 0) + '%';
+		if (ratingName == "N/A") songHealth = healthStyle + FlxMath.roundDecimal(totalHealth, 0) + '%' + healthStyle;
+			else songHealth = healthStyle + FlxMath.roundDecimal(totalHealth, 0) + '%' + healthStyle;
 
 		average = Math.round(averageMs) + 'ms';
 
@@ -1269,10 +1332,27 @@ class PlayState extends MusicBeatState
 		healthDisplay = Language.getPhrase('health_stat', 'Health: {1}', [songHealth]);
 		msDisplay = Language.getPhrase('avg_stat', 'Average: {1}', [average]);
 		accuracyDisplay = Language.getPhrase('acc_stat', 'Accuracy: {1}', [songAccuracy]);
-		ratingDisplay = Language.getPhrase('rate_stat', 'Rating: {1}', [str]);
+		ratingDisplay = Language.getPhrase('rate_stat', 'Rating: {1}', [songRating]);
 
-		tempScore = (ClientPrefs.data.npsCounter ? npsDisplay + separator : '') + scoreDisplay + separator + (instakillOnMiss ? (ClientPrefs.data.displayDeaths ? deathDisplay : '') : missDisplay) + separator + (ClientPrefs.data.healthCounter ? healthDisplay + separator : '') + (ClientPrefs.data.msCounter ? msDisplay + separator : '') + accuracyDisplay + (ClientPrefs.data.ratingCounter ? separator + ratingDisplay : '');
+		tempScore = (ClientPrefs.data.npsCounter ? npsDisplay + separator : '') + scoreDisplay + separator + (instakillOnMiss ? (ClientPrefs.data.displayDeaths ? deathDisplay : '') : missDisplay) 
+			+ separator + (ClientPrefs.data.healthCounter ? healthDisplay + separator : '') 
+				+ (ClientPrefs.data.msCounter ? msDisplay + separator : '') + accuracyDisplay + (ClientPrefs.data.ratingCounter ? separator + ratingDisplay : '');
+
 		scoreTxt.text = tempScore;
+
+		scoreTxt.applyMarkup((ClientPrefs.data.npsCounter ? npsDisplay + separator : '') + scoreDisplay + separator + (instakillOnMiss ? (ClientPrefs.data.displayDeaths ? deathDisplay : '') : missDisplay) 
+			+ separator + (ClientPrefs.data.healthCounter ? healthDisplay + separator : '') 
+				+ (ClientPrefs.data.msCounter ? msDisplay + separator : '') + accuracyDisplay + (ClientPrefs.data.ratingCounter ? separator + ratingDisplay : ''),
+			[
+				new FlxTextFormatMarkerPair(redFormat, '*'),
+				new FlxTextFormatMarkerPair(orangeFormat, '@'),
+				new FlxTextFormatMarkerPair(yellowFormat, '#'),
+				new FlxTextFormatMarkerPair(greenFormat, '$'),
+				new FlxTextFormatMarkerPair(limeFormat, '^'),
+				new FlxTextFormatMarkerPair(cyanFormat, '&'),
+				new FlxTextFormatMarkerPair(magentaFormat, '_'),
+				new FlxTextFormatMarkerPair(blackFormat, '=')
+			]);
 	}
 
 	var tempJudge:String;
@@ -1287,13 +1367,13 @@ class PlayState extends MusicBeatState
 		ratingFC = "";
 		if(songMisses == 0)
 		{
-			if (bads > 0 || shits > 0) ratingFC = 'FC';
-			else if (goods > 0) ratingFC = 'GFC';
-			else if (sicks > 0) ratingFC = 'SFC';
+			if (bads > 0 || shits > 0) ratingFC = "($FC$)";
+			else if (goods > 0) ratingFC = "(^GFC^)";
+			else if (sicks > 0) ratingFC = "(&SFC&)";
 		}
 		else {
-			if (songMisses < 10) ratingFC = 'SDCB';
-			else ratingFC = 'Clear';
+			if (songMisses < 10) ratingFC = "(#SDCB#)";
+			else ratingFC = '(Clear)';
 		}
 
 		tempJudge = Language.getPhrase('judgement_counter', 'Hits: {1}\nSicks: {2}\nGoods: {3}\nBads: {4}\nShits: {5}\nCombo: {6}', 
@@ -1856,6 +1936,9 @@ class PlayState extends MusicBeatState
 
 		if (healthBar.bounds.max != null && health > healthBar.bounds.max)
 			health = healthBar.bounds.max;
+
+		if (healthBar.bounds.min != null && health < healthBar.bounds.min)
+			health = healthBar.bounds.min;
 
 		totalHealth = health / 0.02; // Don't round this for smooth health bar movement
 		totalHealthBar = totalHealth;
@@ -2598,11 +2681,15 @@ class PlayState extends MusicBeatState
 		var ret:Dynamic = callOnScripts('onEndSong', null, true);
 		if(ret != LuaUtils.Function_Stop && !transitioning)
 		{
-			#if !switch
-			var percent:Float = ratingPercent;
-			if(Math.isNaN(percent)) percent = 0;
-			Highscore.saveScore(Song.loadedSongName, songScore, storyDifficulty, percent);
-			#end
+			if (!invalidateScore)
+			{
+				#if !switch
+				var percent:Float = ratingPercent;
+				if(Math.isNaN(percent)) percent = 0;
+				Highscore.saveScore(Song.loadedSongName, songScore, storyDifficulty, percent);
+				#end
+			}
+
 			playbackRate = 1;
 
 			if (chartingMode)
@@ -2628,7 +2715,7 @@ class PlayState extends MusicBeatState
 					MusicBeatState.switchState(new StoryMenuState());
 
 					// if ()
-					if(!ClientPrefs.getGameplaySetting('practice') && !ClientPrefs.getGameplaySetting('botplay')) {
+					if(!ClientPrefs.getGameplaySetting('practice') && !ClientPrefs.getGameplaySetting('botplay') && !invalidateScore) {
 						StoryMenuState.weekCompleted.set(WeekData.weeksList[storyWeek], true);
 						Highscore.saveWeekScore(WeekData.getWeekFileName(), campaignScore, storyDifficulty);
 
@@ -2773,10 +2860,9 @@ class PlayState extends MusicBeatState
 					});
 				switch (daRating.name)
 				{
-					case 'perfect': msTimeTxt.color = FlxColor.CYAN;
-					case 'sick':  msTimeTxt.color = FlxColor.LIME;
-					case 'good': msTimeTxt.color = FlxColor.YELLOW;
-					case 'bad': msTimeTxt.color = FlxColor.ORANGE;
+					case 'sick':  msTimeTxt.color = FlxColor.CYAN;
+					case 'good': msTimeTxt.color = FlxColor.LIME;
+					case 'bad': msTimeTxt.color = FlxColor.YELLOW;
 					case 'shit': msTimeTxt.color = FlxColor.RED;
 					default: msTimeTxt.color = FlxColor.WHITE;
 				}
@@ -3097,6 +3183,8 @@ class PlayState extends MusicBeatState
 		callOnScripts('noteMissPress', [direction]);
 	}
 
+	var subtract:Float = 0;
+
 	function noteMissCommon(direction:Int, note:Note = null)
 	{
 		// score and data
@@ -3218,7 +3306,19 @@ class PlayState extends MusicBeatState
 		if(opponentVocals.length <= 0) vocals.volume = 1;
 		strumPlayAnim(true, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.25 / 1000 / playbackRate);
 		note.hitByOpponent = true;
-		
+
+		var loseHealth:Bool = true; // prevent health loss, *if* sustains are treated as a singular note
+		if (guitarHeroSustains && note.isSustainNote) loseHealth = false;
+
+		var damage:Float = healthDrain * 0.02;
+		var toRemove:Float = Math.min(damage, opponentCanKill && healthDrained + damage < 1.8 ? 0.2 : Math.max(0.001, health) - 0.001);
+
+		if (loseHealth)
+		{
+			health -= toRemove;
+			healthDrained += toRemove;
+		}
+
 		stagesFunc(function(stage:BaseStage) stage.opponentNoteHit(note));
 		var result:Dynamic = callOnLuas('opponentNoteHit', [notes.members.indexOf(note), Math.abs(note.noteData), note.noteType, note.isSustainNote]);
 		if(result != LuaUtils.Function_Stop && result != LuaUtils.Function_StopHScript && result != LuaUtils.Function_StopAll) callOnHScript('opponentNoteHit', [note]);
@@ -3245,7 +3345,7 @@ class PlayState extends MusicBeatState
 		note.wasGoodHit = true;
 
 		if (note.hitsoundVolume > 0 && !note.hitsoundDisabled)
-			FlxG.sound.play(Paths.sound(note.hitsound), note.hitsoundVolume);
+			Hitsounds.onHit();
 
 		if(!note.hitCausesMiss) //Common notes
 		{
@@ -3303,7 +3403,12 @@ class PlayState extends MusicBeatState
 			}
 			var gainHealth:Bool = true; // prevent health gain, *if* sustains are treated as a singular note
 			if (guitarHeroSustains && note.isSustainNote) gainHealth = false;
-			if (gainHealth) health += note.hitHealth * healthGain;
+
+			if (gainHealth)
+			{
+				health += note.hitHealth * healthGain;
+				healthDrained -= note.hitHealth * healthGain;
+			}
 
 		}
 		else //Notes that count as a miss if you hit them (Hurt notes for example)

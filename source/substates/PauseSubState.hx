@@ -9,13 +9,14 @@ import flixel.util.FlxStringUtil;
 import states.StoryMenuState;
 import states.FreeplayState;
 import options.OptionsState;
+import options.GameplayChangersSubstate;
 
 class PauseSubState extends MusicBeatSubstate
 {
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
 	var menuItems:Array<String> = [];
-	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Change Difficulty', 'Options', 'Exit to menu'];
+	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Change Difficulty', 'Options', 'Gameplay Changers', 'Exit to menu'];
 	var difficultyChoices = [];
 	var curSelected:Int = 0;
 
@@ -29,6 +30,8 @@ class PauseSubState extends MusicBeatSubstate
 	var missingText:FlxText;
 
 	public static var songName:String = null;
+	public static var mustRestart:Bool = false;
+	public static var cannotResume:Bool = false;
 
 	override function create()
 	{
@@ -157,17 +160,26 @@ class PauseSubState extends MusicBeatSubstate
 	var cantUnpause:Float = 0.1;
 	override function update(elapsed:Float)
 	{
+		if (mustRestart)
+		{
+			menuItemsOG.remove('Resume');
+			regenMenu();
+			mustRestart = false;
+			cannotResume = true;
+		}
+
 		cantUnpause -= elapsed;
 		if (pauseMusic.volume < 0.5)
 			pauseMusic.volume += 0.01 * elapsed;
 
 		super.update(elapsed);
 
-		if(controls.BACK)
-		{
-			close();
-			return;
-		}
+		if (!cannotResume)
+			if(controls.BACK)
+			{
+				close();
+				return;
+			}
 
 		if(FlxG.keys.justPressed.F5)
 		{
@@ -274,8 +286,10 @@ class PauseSubState extends MusicBeatSubstate
 					practiceText.visible = PlayState.instance.practiceMode;
 				case "Restart Song":
 					restartSong();
+					cannotResume = false;
 				case "Leave Charting Mode":
 					restartSong();
+					cannotResume = false;
 					PlayState.chartingMode = false;
 				case 'Skip Time':
 					if(curTime < Conductor.songPosition)
@@ -292,11 +306,13 @@ class PauseSubState extends MusicBeatSubstate
 						}
 						close();
 					}
+					cannotResume = false;
 				case 'End Song':
 					close();
 					PlayState.instance.notes.clear();
 					PlayState.instance.unspawnNotes = [];
 					PlayState.instance.finishSong(true);
+					cannotResume = false;
 				case 'Toggle Botplay':
 					PlayState.instance.cpuControlled = !PlayState.instance.cpuControlled;
 					PlayState.changedDifficulty = true;
@@ -315,10 +331,17 @@ class PauseSubState extends MusicBeatSubstate
 						FlxG.sound.music.time = pauseMusic.time;
 					}
 					OptionsState.onPlayState = true;
+					cannotResume = false;
+				case "Gameplay Changers":
+					persistentUpdate = false;
+					persistentDraw = false;
+					openSubState(new GameplayChangersSubstate());
+					GameplayChangersSubstate.inPause = true;
 				case "Exit to menu":
 					#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 					PlayState.deathCounter = 0;
 					PlayState.seenCutscene = false;
+					cannotResume = false;
 
 					PlayState.instance.canResync = false;
 					Mods.loadTopMod();

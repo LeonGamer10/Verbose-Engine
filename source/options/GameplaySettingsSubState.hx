@@ -1,5 +1,7 @@
 package options;
 
+import backend.sounds.Hitsounds;
+
 class GameplaySettingsSubState extends BaseOptionsMenu
 {
 	public function new()
@@ -51,8 +53,38 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
+		var option:Option = new Option('Hitsound Type:',
+			'Funny notes play the selected sound once hit.',
+			'hitsoundType',
+			STRING,
+			['Absorb', 
+			'Audience', 
+			'Beep', 
+			'Beep 2', 
+			'Bells', 
+			'Bells 2', 
+			'Bongo', 
+			'Clank', 
+			'Clank 2', 
+			'Clap', 
+			'Clap 2', 
+			'Clap 3', 
+			'Cymbal', 
+			'Drum', 
+			'Echoclap', 
+			'Golf Hit', 
+			'Hi-hat', 
+			'Key Jingling', 
+			'osu!', 
+			'Shot', 
+			'Snare', 
+			'Switch', 
+			'Wood']);
+		addOption(option);
+		option.onChange = onChangeHitsoundType;
+
 		var option:Option = new Option('Hitsound Volume',
-			'Funny notes does \"Tick!\" when you hit them.',
+			'Changes how loud or quiet the hitsounds are.',
 			'hitsoundVolume',
 			PERCENT);
 		addOption(option);
@@ -119,8 +151,11 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		super();
 	}
 
+	function onChangeHitsoundType()
+		Hitsounds.onHitDefault();
+
 	function onChangeHitsoundVolume()
-		FlxG.sound.play(Paths.sound('hitsound'), ClientPrefs.data.hitsoundVolume);
+		Hitsounds.onHit();
 
 	function onChangeAutoPause()
 		FlxG.autoPause = ClientPrefs.data.autoPause;

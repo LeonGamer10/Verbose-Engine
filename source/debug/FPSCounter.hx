@@ -1,6 +1,7 @@
 package debug;
 
 import flixel.FlxG;
+import vslice.funkin.util.MemoryUtil;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.system.System;
@@ -11,20 +12,12 @@ import openfl.system.System;
 **/
 class FPSCounter extends TextField
 {
-	/**
-		The current frame rate, expressed using frames-per-second
-	**/
 	public static var currentFPS(default, null):Int;
 	
-	/**
-		The current memory usage (WARNING: this is NOT your total program memory usage, rather it shows the garbage collector memory)
-	**/
-	public var memoryMegas(get, never):Float;
-	
-	/**
-		When memory usage reaches its highest
-	**/
-	private var memPeak:Float;
+	static final BYTES_PER_MEG:Float = 1024 * 1024;
+	static final ROUND_TO:Float = 1 / 100;
+
+	private var memPeak:Float = 0;
 	
 	public var showFPS:Bool = true;
 	public var showMem:Bool = false;
@@ -75,13 +68,18 @@ class FPSCounter extends TextField
 		deltaTimeout = 0.0;
 	}
 
-	public dynamic function updateText():Void { // so people can override it in hscript
-		if (memoryMegas > memPeak) memPeak = memoryMegas;
-		text = (showFPS ? 'FPS: ${currentFPS}' : "")
-			+ (showMem ? '\nRAM: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}' : "")
-			+ (showMemPeak ? '\nRAM Peak: ${flixel.util.FlxStringUtil.formatBytes(memPeak)}' : "");
+	// so people can override it in hscript
+	public dynamic function updateText():Void
+	{ 
+		var mem:Float = Math.fround(MemoryUtil.getMemoryUsed() / BYTES_PER_MEG / ROUND_TO) * ROUND_TO;
+
+		if (mem > memPeak) memPeak = mem;
+
+		text = (showFPS ? 'FPS: ${currentFPS}' : "") + (showMem ? '\nRAM: ${mem} MB' : "") + (showMemPeak ? '\nRAM Peak: ${memPeak} MB' : "");
 
 		textColor = 0xFFFFFFFF;
+		if (ClientPrefs.data.colorFilter == "Invert")
+			textColor = 0xFF000000;
 		if (currentFPS < FlxG.drawFramerate * 0.5)
 			textColor = 0xFFFF0000;
 	}

@@ -45,6 +45,8 @@ import states.TitleState;
 		[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
 		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]];
 
+	public var laneUnderlayOpacity:Float = 0;
+	public var colorFilter:String = 'None';
 	public var ghostTapping:Bool = true;
 	public var timeBarType:String = 'Time Elapsed';
 	public var healthOverlay:String = 'Default';
@@ -52,6 +54,7 @@ import states.TitleState;
 	public var advScore:Bool = false;
 	public var noReset:Bool = false;
 	public var healthBarAlpha:Float = 1;
+	public var hitsoundType:String = 'osu!';
 	public var hitsoundVolume:Float = 0;
 	public var pauseMusic:String = 'Tea Time';
 	public var checkForUpdates:Bool = true;
@@ -72,6 +75,8 @@ import states.TitleState;
 		'songspeed' => 1.0,
 		'healthgain' => 1.0,
 		'healthloss' => 1.0,
+		'healthdamage' => 0.0,
+		'opponentcankill' => false,
 		'instakill' => false,
 		'practice' => false,
 		'botplay' => false,

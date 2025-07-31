@@ -147,6 +147,14 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
+		var option:Option = new Option('Color Filters:',
+			"Change how colors of the game work, either for fun or if you're colorblind.",
+			'colorFilter',
+			STRING,
+			['None', 'Deuteranopia', 'Protanopia', 'Tritanopia', 'Virtual Boy', 'Gameboy', 'Downer', 'Grayscale', 'Invert']);
+		addOption(option);
+		option.onChange = backend.ColorblindFilters.applyFiltersOnGame;
+
 		var option:Option = new Option('Camera Zooms',
 			"If unchecked, the camera won't zoom in on a beat hit.",
 			'camZooms',

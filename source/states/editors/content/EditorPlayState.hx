@@ -2,6 +2,7 @@ package states.editors.content;
 
 import backend.Song;
 import backend.Rating;
+import backend.sounds.Hitsounds;
 
 import objects.Note;
 import objects.NoteSplash;
@@ -91,7 +92,7 @@ class EditorPlayState extends MusicBeatSubstate
 
 		cachePopUpScore();
 		guitarHeroSustains = ClientPrefs.data.guitarHeroSustains;
-		if(ClientPrefs.data.hitsoundVolume > 0) Paths.sound('hitsound');
+		if(ClientPrefs.data.hitsoundVolume > 0) Hitsounds.loadSound();
 
 		/* setting up Editor PlayState stuff */
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
@@ -805,7 +806,7 @@ class EditorPlayState extends MusicBeatSubstate
 
 		note.wasGoodHit = true;
 		if (note.hitsoundVolume > 0 && !note.hitsoundDisabled)
-			FlxG.sound.play(Paths.sound(note.hitsound), note.hitsoundVolume);
+			Hitsounds.onHit();
 
 		if(note.hitCausesMiss) {
 			noteMiss(note);
